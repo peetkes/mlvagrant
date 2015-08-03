@@ -1,13 +1,13 @@
 #! /bin/sh
 echo "running $0 $@"
 
-# Install tomcat
+# Install tomcat6
 if [ -d /vagrant ]; then
-  yum -y install tomcat
+  yum -y install tomcat6
   
-  chkconfig --levels 2345 tomcat on
+  chkconfig --levels 2345 tomcat6 on
   
-  service tomcat start
+  service tomcat6 start
 else
   # tomcat 6 pre-installed on demo servers
   chkconfig --levels 2345 tomcat6 on

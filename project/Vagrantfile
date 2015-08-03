@@ -31,6 +31,10 @@ end
 @properties = load_properties("project.properties")
 @ml_version = ENV['ML_VERSION'] || @properties['ML_VERSION'] || "8.0-3"
 @nr_hosts = (ENV['NR_HOSTS'] || @properties['NR_HOSTS'] || "3").to_i
+@ml_memory = (ENV['ML_MEMORY'] || @properties['ML_MEMORY'] || "2048").to_i
+@ml_cpus = (ENV['ML_CPUS'] || @properties['ML_CPUS'] || "2").to_i
+@ml_dr = ENV['ML_DR'] || @properties['ML_DR'] || "false"
+
 puts "ml-version=#{@ml_version}"
 puts "nr-hosts=#{@nr_hosts}"
 puts "ml-memory=#{@ml_memory}"
