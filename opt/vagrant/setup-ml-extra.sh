@@ -18,7 +18,7 @@ echo "running $0 $@"
 USER="admin"
 PASS="admin"
 AUTH_MODE="anyauth"
-VERSION="7"
+VERSION="7.0-5.1"
 N_RETRY=5
 RETRY_INTERVAL=10
 SKIP=0
@@ -75,7 +75,9 @@ else
 fi
 JOINING_HOST=$1
 
-source /opt/vagrant/ml_${VERSION}_license.properties
+MAIN_VERSION="$(echo $VERSION | head -c 1)"
+
+source /opt/vagrant/ml_${MAIN_VERSION}_license.properties
 
 echo "BOOTSTRAP_HOST is ${BOOTSTRAP_HOST}"
 echo "JOINING_HOST is ${JOINING_HOST}"
@@ -91,7 +93,7 @@ CURL="curl -s -S"
 # Add authentication related options, required once security is initialized
 AUTH_CURL="${CURL} --${AUTH_MODE} --user ${USER}:${PASS}"
 
-if [ "$VERSION" -eq "5" ] || [ "$VERSION" -eq "6" ]; then
+if [ "$MAIN_VERSION" -eq "5" ] || [ "$MAIN_VERSION" -eq "6" ]; then
 	
 	yum -y install recode
 	

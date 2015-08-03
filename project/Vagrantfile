@@ -29,10 +29,13 @@ def load_properties(properties_filename, prefix = "")
 end
 
 @properties = load_properties("project.properties")
-@ml_version = @properties['ML_VERSION'] || "8"
-@nr_hosts = (@properties['NR_HOSTS'] || "3").to_i
+@ml_version = ENV['ML_VERSION'] || @properties['ML_VERSION'] || "8.0-3"
+@nr_hosts = (ENV['NR_HOSTS'] || @properties['NR_HOSTS'] || "3").to_i
 puts "ml-version=#{@ml_version}"
 puts "nr-hosts=#{@nr_hosts}"
+puts "ml-memory=#{@ml_memory}"
+puts "ml-cpus=#{@ml_cpus}"
+puts "ml-dr=#{@ml_dr}"
 
 @ml_installer = @properties['ML_INSTALLER'] || ""
 @mlcp_installer = @properties['MLCP_INSTALLER'] || ""
@@ -57,6 +60,10 @@ def get_vm_name(i)
   File.basename(Dir.getwd) + "-ml" + i.to_s
 end
 
+def get_vm_rep_name(i)
+  File.basename(Dir.getwd) + "-rep-ml" + i.to_s
+end
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     mastername = get_vm_name(1)
@@ -75,6 +82,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     # Customize the virtual machine environments
     config.vm.provider :virtualbox do |vb|
+        vb.customize ["modifyvm", :id, "--vram", "33"]
         vb.customize ["modifyvm", :id, "--nictype1", "virtio"]
         vb.customize ["modifyvm", :id, "--nictype2", "virtio"]
         #vb.gui = true # for debugging
@@ -84,15 +92,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         master.vm.box = "chef/centos-6.5"
         master.vm.provider "virtualbox" do |v|
             v.name = mastername
-            v.memory = 2048
-            v.cpus = 2
+            v.memory = @ml_memory
+            v.cpus = @ml_cpus
         end
         master.vm.hostname = mastername
-        if @priv_net_ip != ""
-          master.vm.network "private_network", ip: @priv_net_ip
-        else
-          config.vm.network "private_network", type: "dhcp"
-        end
+#        master.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+        master.vm.network "private_network", type: "dhcp"
         master.vm.synced_folder "/opt/vagrant", "/opt/vagrant"
         master.vm.synced_folder "/space/software", "/space/software"
         if @shared_folder_host != "" and  @shared_folder_guest != ""
@@ -109,18 +114,67 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 data.vm.box = "chef/centos-6.5"
                 data.vm.provider "virtualbox" do |v|
                     v.name = hostname
-                    v.memory = 2048
-                    v.cpus = 2
+                    v.memory = @ml_memory
+                    v.cpus = @ml_cpus
                 end
                 data.vm.hostname = hostname
-                data.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+#                data.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+                data.vm.network "private_network", type: "dhcp"
                 data.vm.synced_folder "/opt/vagrant", "/opt/vagrant"
                 data.vm.synced_folder "/space/software", "/space/software"
-
+		        if @shared_folder_host != "" and  @shared_folder_guest != ""
+		          data.vm.synced_folder @shared_folder_host, @shared_folder_guest, :create => true
+		        end
                 data.vm.provision :hostmanager
                 data.vm.provision :shell, :path => "/opt/vagrant/bootstrap-centos-extra.sh", :args => ["-v", "#{@ml_version}", mastername, hostname, File.basename(Dir.getwd)]
             end
         end
     end
 
+    if (@ml_dr != "false")    
+        rep_mastername = get_vm_rep_name(1)
+        
+        config.vm.define rep_mastername do |rep_master|
+            rep_master.vm.box = "chef/centos-6.5"
+            rep_master.vm.provider "virtualbox" do |v|
+                v.name = rep_mastername
+                v.memory = @ml_memory
+                v.cpus = @ml_cpus
+            end
+            rep_master.vm.hostname = rep_mastername
+#            rep_master.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+            rep_master.vm.network "private_network", type: "dhcp"
+            rep_master.vm.synced_folder "/opt/vagrant", "/opt/vagrant"
+            rep_master.vm.synced_folder "/space/software", "/space/software"
+	        if @shared_folder_host != "" and  @shared_folder_guest != ""
+	          rep_master.vm.synced_folder @shared_folder_host, @shared_folder_guest, :create => true
+	        end
+            rep_master.vm.provision :hostmanager
+            rep_master.vm.provision :shell, :path => "/opt/vagrant/bootstrap-centos-rep-master.sh", :args => ["-v", "#{@ml_version}", rep_mastername, File.basename(Dir.getwd)]
+        end
+        
+        if @nr_hosts > 1
+            (2..@nr_hosts).each do |i|
+              rep_hostname = get_vm_rep_name(i)
+              config.vm.define rep_hostname do |rep_data|
+                    rep_data.vm.box = "chef/centos-6.5"
+                    rep_data.vm.provider "virtualbox" do |v|
+                        v.name = rep_hostname
+                        v.memory = @ml_memory
+                        v.cpus = @ml_cpus
+                    end
+                    rep_data.vm.hostname = rep_hostname
+#                    rep_data.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+                    rep_data.vm.network "private_network", type: "dhcp"
+                    rep_data.vm.synced_folder "/opt/vagrant", "/opt/vagrant"
+                    rep_data.vm.synced_folder "/space/software", "/space/software"
+			        if @shared_folder_host != "" and  @shared_folder_guest != ""
+			          rep_data.vm.synced_folder @shared_folder_host, @shared_folder_guest, :create => true
+			        end
+                    rep_data.vm.provision :hostmanager
+                    rep_data.vm.provision :shell, :path => "/opt/vagrant/bootstrap-centos-extra.sh", :args => ["-v", "#{@ml_version}", rep_mastername, rep_hostname, File.basename(Dir.getwd)]
+                end
+            end
+        end
+     end
 end

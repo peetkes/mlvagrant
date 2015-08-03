@@ -7,12 +7,14 @@ source /tmp/mlvagrant.project.properties
 yum -y install zip unzip
 yum -y install java
 
+MAIN_VERSION="$(echo $1 | head -c 1)"
+
 # Determine installer to use.
 if [ -n "${mlcp_installer}" ]; then
   installer=${mlcp_installer} 
-elif [ "${ml_version}" -eq "8" ]; then
+elif [ "${MAIN_VERSION}" -eq "8" ]; then
   installer=mlcp-1.3-3-bin.zip
-elif [ "${ml_version}" -eq "7" ]; then
+elif [ "${MAIN_VERSION}" -eq "7" ]; then
   installer=mlcp-Hadoop2-1.2-4-bin.zip
 else
   installer=mlcp-Hadoop2-1.0-5-bin.zip
