@@ -96,17 +96,17 @@ fi
 	SELECT=`sed -e '/<select name="foreign-protocol">/,/<\/select>/!d' step1.html`
 	echo "$SELECT" > select.html
 	FOREIGN_PROTOCOL=`grep '<option value=".*" selected="true">.*</option>' select.html | sed 's%^.*value="\([^"]*\)" selected="true".*$%\1%'`		
-	echo "foreign-host = $BOOTSTRAP_REPLICA_HOST"
-	echo "foreign-port = $FOREIGN_PORT"
-	echo "foreign-protocol = $FOREIGN_PROTOCOL"
+#	echo "foreign-host = $BOOTSTRAP_REPLICA_HOST"
+#	echo "foreign-port = $FOREIGN_PORT"
+#	echo "foreign-protocol = $FOREIGN_PROTOCOL"
 	$AUTH_CURL -i -o step2.html -X POST \
 		--data-urlencode "foreign-host-name=$BOOTSTRAP_REPLICA_HOST" \
 	    --data-urlencode "foreign-port=$FOREIGN_PORT" \
 	    --data-urlencode "foreign-protocol=$FOREIGN_PROTOCOL" \
 	    http://${BOOTSTRAP_MASTER_HOST}:8001/dbrep-couple-foreign-cluster-confirm-ssl.xqy
 	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	cat step2.html
-	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+#	cat step2.html
+#	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 	XDQP_SSL_ENABLED=`grep "xdqp-ssl-enable" step2.html| sed 's%^.*value="\([^"]*\)" checked="true".*$%\1%'`    
 	XDQP_SSL_ALLOW_SSLV3=`grep "xdqp-ssl-allow-sslv3" step2.html| sed 's%^.*value="\([^"]*\)" checked="true".*$%\1%'`    
@@ -114,12 +114,12 @@ fi
 	XDQP_SSL_CIPHERS=`grep 'name="xdqp-ssl-ciphers"' step2.html| sed 's%^.*value="\([^"]*\)".*$%\1%'`    
 	XDQP_TIMEOUT=`grep 'name="xdqp-timeout"' step2.html| sed 's%^.*value="\([^"]*\)".*$%\1%'`    
 	HOST_TIMEOUT=`grep 'name="host-timeout"' step2.html| sed 's%^.*value="\([^"]*\)".*$%\1%'`
-	echo "XDQP_SSL_ENABLED = $XDQP_SSL_ENABLED"
-	echo "XDQP_SSL_ALLOW_SSLV3 = $XDQP_SSL_ALLOW_SSLV3"
-	echo "XDQP_SSL_ALLOW_TLS = $XDQP_SSL_ALLOW_TLS"
-	echo "XDQP_SSL_CIPHERS = $XDQP_SSL_CIPHERS"
-	echo "XDQP_TIMEOUT = $XDQP_TIMEOUT"
-	echo "HOST_TIMEOUT = $HOST_TIMEOUT"
+#	echo "XDQP_SSL_ENABLED = $XDQP_SSL_ENABLED"
+#	echo "XDQP_SSL_ALLOW_SSLV3 = $XDQP_SSL_ALLOW_SSLV3"
+#	echo "XDQP_SSL_ALLOW_TLS = $XDQP_SSL_ALLOW_TLS"
+#	echo "XDQP_SSL_CIPHERS = $XDQP_SSL_CIPHERS"
+#	echo "XDQP_TIMEOUT = $XDQP_TIMEOUT"
+#	echo "HOST_TIMEOUT = $HOST_TIMEOUT"
 	$AUTH_CURL -i -o step3.html -X POST \
 		--data-urlencode "foreign-host-name=$BOOTSTRAP_REPLICA_HOST" \
 	    --data-urlencode "foreign-port=$FOREIGN_PORT" \
@@ -132,11 +132,10 @@ fi
 	    --data-urlencode "host-timeout=$HOST_TIMEOUT" \
 	    http://${BOOTSTRAP_MASTER_HOST}:8001/dbrep-couple-foreign-cluster-confirm-go.xqy
 	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	cat step3.html
-	LOCATION=`grep "Location:" step3.html \
-		| sed 's%^.*Location: \(.*\)$%\1%'`
-	echo "$LOCATION"
-	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+#	LOCATION=`grep "Location:" step3.html \
+#		| sed 's%^.*Location: \(.*\)$%\1%'`
+#	echo "$LOCATION"
+#	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	
 	LOCAL_HOST_WITH_PORT=`grep "Location:" step3.html | sed 's%^.*local-host-with-port=\([^&]*\)&.*$%\1%'`
 	LOCAL_PROTOCOL=`grep "Location:" step3.html | sed 's%^.*local-protocol=\([^&]*\)&.*$%\1%'`
@@ -155,23 +154,23 @@ fi
 	XDQP_TIMEOUT=`grep "Location:" step3.html | sed 's%^.*xdqp-timeout=\([^&]*\)&.*$%\1%'`
 	HOST_TIMEOUT=`grep "Location:" step3.html | sed 's%^.*host-timeout=\([^&]*\)&.*$%\1%'`
 	SSL_CERTIFICATE=`grep "Location:" step3.html | sed 's%^.*ssl-certificate=\([^&]*\)$%\1%'`
-	echo "LOCAL_HOST_WITH_PORT = $LOCAL_HOST_WITH_PORT"
-	echo "LOCAL_PROTOCOL = $LOCAL_PROTOCOL"
-	echo "LOCAL_CLUSTER_ID = $LOCAL_CLUSTER_ID"
-	echo "LOCAL_CLUSTER_NAME = $LOCAL_CLUSTER_NAME"
-	echo "LOCAL_VERSION = $LOCAL_VERSION"
-	echo "LOCAL_PLATFORM = $LOCAL_PLATFORM"
-	echo "LOCAL_ARCHITECTURE = $LOCAL_ARCHITECTURE"
-	echo "BOOTSTRAP_HOSTNAME_1 = $BOOTSTRAP_HOST_NAME_1"
-	echo "BOOTSTRAP_HOST_ID_1 = $BOOTSTRAP_HOST_ID_1"
-	echo "BOOTSTRAP_HOST_PORT_1 = $BOOTSTRAP_PORT_1"
-	echo "XDQP_SSL_ENABLE = $XDQP_SSL_ENABLE"
-	echo "XDQP_SSL_ALLOW_SSLV3 = $XDQP_SSL_ALLOW_SSLV3"
-	echo "XDQP_SSL_ALLOW_TLS = $XDQP_SSL_ALLOW_TLS"
-	echo "XDQP_SSL_CIPHERS = $XDQP_SSL_CIPHERS"
-	echo "XDQP_TIMEOUT = $XDQP_TIMEOUT"
-	echo "HOST_TIMEOUT = $HOST_TIMEOUT"
-	echo "SSL_CERTIFICATE = $SSL_CERTIFICATE"
+#	echo "LOCAL_HOST_WITH_PORT = $LOCAL_HOST_WITH_PORT"
+#	echo "LOCAL_PROTOCOL = $LOCAL_PROTOCOL"
+#	echo "LOCAL_CLUSTER_ID = $LOCAL_CLUSTER_ID"
+#	echo "LOCAL_CLUSTER_NAME = $LOCAL_CLUSTER_NAME"
+#	echo "LOCAL_VERSION = $LOCAL_VERSION"
+#	echo "LOCAL_PLATFORM = $LOCAL_PLATFORM"
+#	echo "LOCAL_ARCHITECTURE = $LOCAL_ARCHITECTURE"
+#	echo "BOOTSTRAP_HOSTNAME_1 = $BOOTSTRAP_HOST_NAME_1"
+#	echo "BOOTSTRAP_HOST_ID_1 = $BOOTSTRAP_HOST_ID_1"
+#	echo "BOOTSTRAP_HOST_PORT_1 = $BOOTSTRAP_PORT_1"
+#	echo "XDQP_SSL_ENABLE = $XDQP_SSL_ENABLE"
+#	echo "XDQP_SSL_ALLOW_SSLV3 = $XDQP_SSL_ALLOW_SSLV3"
+#	echo "XDQP_SSL_ALLOW_TLS = $XDQP_SSL_ALLOW_TLS"
+#	echo "XDQP_SSL_CIPHERS = $XDQP_SSL_CIPHERS"
+#	echo "XDQP_TIMEOUT = $XDQP_TIMEOUT"
+#	echo "HOST_TIMEOUT = $HOST_TIMEOUT"
+#	echo "SSL_CERTIFICATE = $SSL_CERTIFICATE"
 	$AUTH_CURL -i -o step4.html -X POST \
 		--data-urlencode "local-host-with-port=$LOCAL_HOST_WITH_PORT" \
 	    --data-urlencode "local-protocol=$LOCAL_PROTOCOL" \
@@ -192,10 +191,10 @@ fi
 	    --data-urlencode "ssl-certificate=$SSL_CERTIFICATE" \
 	    http://${BOOTSTRAP_REPLICA_HOST}:8001/dbrep-couple-foreign-cluster-write-on-foreign-cluster-go.xqy
 	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	LOCATION=`grep "Location:" step4.html \
-		| sed 's%^.*Location: \(.*\)$%\1%'`
-	echo "$LOCATION"
-	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+#	LOCATION=`grep "Location:" step4.html \
+#		| sed 's%^.*Location: \(.*\)$%\1%'`
+#	echo "$LOCATION"
+#	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 	FOREIGN_CLUSTER_ID=`grep "Location:" step4.html | sed 's%^.*foreign-cluster-id=\([^&]*\)&.*$%\1%'`
 	FOREIGN_CLUSTER_NAME=`grep "Location:" step4.html | sed 's%^.*foreign-cluster-name=\([^&]*\)&.*$%\1%'`
@@ -209,18 +208,18 @@ fi
 	XDQP_TIMEOUT=`grep "Location:" step4.html | sed 's%^.*xdqp-timeout=\([^&]*\)&.*$%\1%'`
 	HOST_TIMEOUT=`grep "Location:" step4.html | sed 's%^.*host-timeout=\([^&]*\)&.*$%\1%'`
 	FOREIGN_SSL_CERTIFICATE=`grep "Location:" step4.html | sed 's%^.*foreign-ssl-certificate=\([^&]*\)$%\1%'`
-	echo "FOREIGN_CLUSTER_ID = $FOREIGN_CLUSTER_ID"
-	echo "FOREIGN_CLUSTER_NAME = $FOREIGN_CLUSTER_NAME"
-	echo "BOOTSTRAP_HOSTNAME_1 = $BOOTSTRAP_HOST_NAME_1"
-	echo "BOOTSTRAP_HOST_ID_1 = $BOOTSTRAP_HOST_ID_1"
-	echo "BOOTSTRAP_HOST_PORT_1 = $BOOTSTRAP_PORT_1"
-	echo "XDQP_SSL_ENABLE = $XDQP_SSL_ENABLE"
-	echo "XDQP_SSL_ALLOW_SSLV3 = $XDQP_SSL_ALLOW_SSLV3"
-	echo "XDQP_SSL_ALLOW_TLS = $XDQP_SSL_ALLOW_TLS"
-	echo "XDQP_SSL_CIPHERS = $XDQP_SSL_CIPHERS"
-	echo "XDQP_TIMEOUT = $XDQP_TIMEOUT"
-	echo "HOST_TIMEOUT = $HOST_TIMEOUT"
-	echo "FOREIGN_SSL_CERTIFICATE = $FOREIGN_SSL_CERTIFICATE"
+#	echo "FOREIGN_CLUSTER_ID = $FOREIGN_CLUSTER_ID"
+#	echo "FOREIGN_CLUSTER_NAME = $FOREIGN_CLUSTER_NAME"
+#	echo "BOOTSTRAP_HOSTNAME_1 = $BOOTSTRAP_HOST_NAME_1"
+#	echo "BOOTSTRAP_HOST_ID_1 = $BOOTSTRAP_HOST_ID_1"
+#	echo "BOOTSTRAP_HOST_PORT_1 = $BOOTSTRAP_PORT_1"
+#	echo "XDQP_SSL_ENABLE = $XDQP_SSL_ENABLE"
+#	echo "XDQP_SSL_ALLOW_SSLV3 = $XDQP_SSL_ALLOW_SSLV3"
+#	echo "XDQP_SSL_ALLOW_TLS = $XDQP_SSL_ALLOW_TLS"
+#	echo "XDQP_SSL_CIPHERS = $XDQP_SSL_CIPHERS"
+#	echo "XDQP_TIMEOUT = $XDQP_TIMEOUT"
+#	echo "HOST_TIMEOUT = $HOST_TIMEOUT"
+#	echo "FOREIGN_SSL_CERTIFICATE = $FOREIGN_SSL_CERTIFICATE"
 	$AUTH_CURL -i -o step5.html -X POST \
 	    --data-urlencode "foreign-cluster-id=$FOREIGN_CLUSTER_ID" \
 	    --data-urlencode "foreign-cluster-name=$FOREIGN_CLUSTER_NAME" \
@@ -236,8 +235,9 @@ fi
 	    --data-urlencode "foreign-ssl-certificate=$FOREIGN_SSL_CERTIFICATE" \
 	    http://${BOOTSTRAP_MASTER_HOST}:8001/dbrep-couple-local-cluster-write-go.xqy
 	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	cat step5.html
-exit 1
+
+# Remove obsolete files
+	rm *.html
 else
 	
 #######################################################

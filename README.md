@@ -70,13 +70,17 @@ The name of the user is derived from the folder name. The password is initialize
 
 ## Customizing bootstrap
 
-The Vagrantfile contains two variables:
+The Vagrantfile contains five variables:
 
+- `ml_version`, defaults to '8.0-3'
 - `nr_hosts`, defaults to 3
-- `ml_version`, defaults to '8'
+- `ml_memory`, defaults to 2048
+- `ml_cpus`, defaults to 2
+- `ml_dr`, defaults to false
 
 The minimum number of hosts is 1, the maximum is limited mostly by the local resources you have available. Each vm will take 2.5Gb of disk space, and by default (also in the Vagrantfile) takes 2Gb of ram, and 2 CPU cores.
 
 Note: although you can technically create a cluster of just 2 nodes, 3 nodes is required for proper fail-over. The cluster needs a quorum to vote if a host should be excluded.
 
-The ml_version is used in the `install-ml-CentOs.sh` script to select the appropriate installer. Code is in place to install versions 5, 6, 7, and 8. The install-ml script refers to rpm by exact name, which includes subversion number, and patch level. Feel free to change it locally to match the exact version you prefer to install.
+The vagrant file makes use of a project.properties file in which you can override the variables used in the Vagrantfile.
+
