@@ -34,6 +34,7 @@ end
 @ml_memory = (ENV['ML_MEMORY'] || @properties['ML_MEMORY'] || "2048").to_i
 @ml_cpus = (ENV['ML_CPUS'] || @properties['ML_CPUS'] || "2").to_i
 @ml_dr = ENV['ML_DR'] || @properties['ML_DR'] || "false"
+@vm_box = ENV['VM_BOX'] || @properties['VM_BOX'] || "chef/centos-6.5"
 
 puts "ml-version=#{@ml_version}"
 puts "nr-hosts=#{@nr_hosts}"
@@ -93,7 +94,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
 
     config.vm.define mastername do |master|
-        master.vm.box = "chef/centos-6.5"
+        master.vm.box = @vm_box
         master.vm.provider "virtualbox" do |v|
             v.name = mastername
             v.memory = @ml_memory
@@ -115,7 +116,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         (2..@nr_hosts).each do |i|
           hostname = get_vm_name(i)
           config.vm.define hostname do |data|
-                data.vm.box = "chef/centos-6.5"
+                data.vm.box = @vm_box
                 data.vm.provider "virtualbox" do |v|
                     v.name = hostname
                     v.memory = @ml_memory
@@ -135,12 +136,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
     end
 
-    if (@ml_dr != "false")    
+    if (@ml_dr != "false")
     	mastername = get_vm_name(1)
         rep_mastername = get_vm_rep_name(1)
-        
+
         config.vm.define rep_mastername do |rep_master|
-            rep_master.vm.box = "chef/centos-6.5"
+            rep_master.vm.box = @vm_box
             rep_master.vm.provider "virtualbox" do |v|
                 v.name = rep_mastername
                 v.memory = @ml_memory
@@ -158,12 +159,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             rep_master.vm.provision :shell, :path => "/opt/vagrant/bootstrap-centos-master.sh", :args => ["-v", "#{@ml_version}", rep_mastername, File.basename(Dir.getwd), "@{ml_dr}"]
             rep_master.vm.provision :shell, :path => "/opt/vagrant/couple-clusters.sh", :args => ["-v", "#{@ml_version}", "-m", mastername, "-r", rep_mastername]
         end
-        
+
         if @nr_hosts > 1
             (2..@nr_hosts).each do |i|
               rep_hostname = get_vm_rep_name(i)
               config.vm.define rep_hostname do |rep_data|
-                    rep_data.vm.box = "chef/centos-6.5"
+                    rep_data.vm.box = @vm_box
                     rep_data.vm.provider "virtualbox" do |v|
                         v.name = rep_hostname
                         v.memory = @ml_memory

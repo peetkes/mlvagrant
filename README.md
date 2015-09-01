@@ -77,6 +77,7 @@ The Vagrantfile contains five variables:
 - `ml_memory`, defaults to 2048
 - `ml_cpus`, defaults to 2
 - `ml_dr`, defaults to false
+- `vm_box`, defaults to 'bento/centos-6.7'
 
 The minimum number of hosts is 1, the maximum is limited mostly by the local resources you have available. Each vm will take 2.5Gb of disk space, and by default (also in the Vagrantfile) takes 2Gb of ram, and 2 CPU cores.
 
